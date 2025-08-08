@@ -1,0 +1,121 @@
+<div class="ticket-detail-container">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+    <p>Loading ticket details...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="error">
+    <p>{{ error }}</p>
+    <button (click)="loadTicket()">Retry</button>
+    <button (click)="goBack()" class="secondary">Back to List</button>
+  </div>
+
+  <!-- Ticket Details -->
+  <div *ngIf="!loading && !error && ticket" class="ticket-detail">
+    <div class="ticket-header">
+      <button (click)="goBack()" class="back-button">← Back to Tickets</button>
+      <div class="header-actions">
+        <span class="ticket-id">#{{ ticket.id }}</span>
+        <span class="priority priority-{{ ticket.priority }}">{{
+          ticket.priority
+        }}</span>
+      </div>
+    </div>
+
+    <div class="ticket-content">
+      <h1>{{ ticket.title }}</h1>
+
+      <div class="ticket-meta">
+        <div class="meta-item">
+          <label>Status:</label>
+          <span class="status status-{{ ticket.status }}">{{
+            ticket.status | titlecase
+          }}</span>
+        </div>
+
+        <div class="meta-item">
+          <label>Assignee:</label>
+          <span>{{ ticket.assignee || "Unassigned" }}</span>
+        </div>
+
+        <div class="meta-item">
+          <label>Priority:</label>
+          <span>{{ ticket.priority | titlecase }}</span>
+        </div>
+
+        <div class="meta-item">
+          <label>Created:</label>
+          <span>{{ ticket.createdDate | date : "medium" }}</span>
+        </div>
+
+        <div class="meta-item">
+          <label>Last Updated:</label>
+          <span>{{ ticket.updatedDate | date : "medium" }}</span>
+        </div>
+      </div>
+
+      <div class="description-section">
+        <h3>Description</h3>
+        <p class="description">{{ ticket.description }}</p>
+      </div>
+
+      <!-- Actions -->
+      <div class="actions-section">
+        <h3>Actions</h3>
+
+        <!-- Assign User -->
+        <div class="action-group" *ngIf="ticket.status !== 'completed'">
+          <label for="userSelect">Assign to User:</label>
+          <div class="assign-controls">
+            <select
+              id="userSelect"
+              [(ngModel)]="selectedUserId"
+              [disabled]="assignLoading"
+            >
+              <option value="">Select a user...</option>
+              <option
+                *ngFor="let user of users"
+                [value]="user.id"
+                [selected]="user.id === ticket.assigneeId"
+              >
+                {{ user.name }}
+              </option>
+            </select>
+            <button
+              (click)="assignUser()"
+              [disabled]="!selectedUserId || assignLoading"
+              class="primary"
+            >
+              <span *ngIf="assignLoading" class="button-spinner"></span>
+              {{ assignLoading ? "Assigning..." : "Assign" }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Complete Ticket -->
+        <div class="action-group" *ngIf="ticket.status !== 'completed'">
+          <button
+            (click)="completeTicket()"
+            [disabled]="completeLoading"
+            class="success"
+          >
+            <span *ngIf="completeLoading" class="button-spinner"></span>
+            {{ completeLoading ? "Completing..." : "Mark as Complete" }}
+          </button>
+        </div>
+
+        <!-- Completed Badge -->
+        <div *ngIf="ticket.status === 'completed'" class="completed-badge">
+          ✓ This ticket has been completed
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success/Error Messages -->
+  <div *ngIf="message" class="message" [class]="messageType">
+    {{ message }}
+  </div>
+</div>
