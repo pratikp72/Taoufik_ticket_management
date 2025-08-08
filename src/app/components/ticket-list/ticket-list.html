@@ -1,0 +1,86 @@
+<div class="ticket-list-container">
+  <h1>Ticket Management System</h1>
+
+  <!-- Filters -->
+  <div class="filters">
+    <div class="filter-group">
+      <label for="statusFilter">Filter by Status:</label>
+      <select
+        id="statusFilter"
+        [(ngModel)]="statusFilter"
+        (change)="applyFilters()"
+      >
+        <option value="">All Statuses</option>
+        <option value="open">Open</option>
+        <option value="in-progress">In Progress</option>
+        <option value="completed">Completed</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="assigneeFilter">Filter by Assignee:</label>
+      <select
+        id="assigneeFilter"
+        [(ngModel)]="assigneeFilter"
+        (change)="applyFilters()"
+      >
+        <option value="">All Assignees</option>
+        <option value="unassigned">Unassigned</option>
+        <option *ngFor="let user of users" [value]="user.name">
+          {{ user.name }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+    <p>Loading tickets...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="error">
+    <p>{{ error }}</p>
+    <button (click)="loadTickets()">Retry</button>
+  </div>
+
+  <!-- Tickets List -->
+  <div *ngIf="!loading && !error" class="tickets-grid">
+    <div
+      *ngFor="let ticket of filteredTickets"
+      class="ticket-card"
+      [class]="'status-' + ticket.status"
+      (click)="viewTicket(ticket.id)"
+    >
+      <div class="ticket-header">
+        <h3>{{ ticket.title }}</h3>
+        <span class="priority priority-{{ ticket.priority }}">{{
+          ticket.priority
+        }}</span>
+      </div>
+
+      <p class="ticket-description">{{ ticket.description }}</p>
+
+      <div class="ticket-meta">
+        <span class="status">{{ ticket.status | titlecase }}</span>
+        <span class="assignee">
+          {{ ticket.assignee || "Unassigned" }}
+        </span>
+      </div>
+
+      <div class="ticket-dates">
+        <small>Created: {{ ticket.createdDate | date : "short" }}</small>
+        <small>Updated: {{ ticket.updatedDate | date : "short" }}</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div
+    *ngIf="!loading && !error && filteredTickets.length === 0"
+    class="empty-state"
+  >
+    <p>No tickets match the current filters.</p>
+  </div>
+</div>
